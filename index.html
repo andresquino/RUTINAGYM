@@ -1,0 +1,359 @@
+<!doctype html><html lang='es'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width, initial-scale=1'><meta name='theme-color' content='#0b1220'><link rel='manifest' href='manifest.webmanifest'><link rel='apple-touch-icon' href='icons/icon-192.png'><title>Rutina 12S — PWA (CSV/XLSX/PDF)</title><style>:root{--bg:#0b1220;--card:#0e1626;--ink:#eaf1ff;--muted:#a9b7d9;--primary:#3b82f6;--primary-2:#22d3ee;--accent:#a855f7;--stroke:#1a2540}
+*{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+body{margin:0;background:radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.25), transparent), var(--bg); color:var(--ink)}
+header{padding:28px 16px;text-align:center;background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(168,85,247,.22)); border-bottom:1px solid var(--stroke)}
+h1{margin:0 0 6px 0;font-size:28px;letter-spacing:.3px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(3,9,25,.6);border-bottom:1px solid var(--stroke);backdrop-filter:blur(6px); position:sticky; top:0; z-index:6}
+.badge{font-size:12px;color:#cbd5ff}
+.btn-secondary{background:#223055;color:#e6ecff;border:1px solid var(--stroke);padding:8px 12px;border-radius:10px; cursor:pointer}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:center;padding:14px;background:linear-gradient(180deg,rgba(16,24,40,.4),rgba(16,24,40,0));border-bottom:1px solid var(--stroke); position:sticky; top:46px; z-index:5; backdrop-filter:blur(6px)}
+.controls label{display:flex;align-items:center;gap:8px;background:var(--card);padding:10px;border:1px solid var(--stroke);border-radius:12px; box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.controls select,.controls input{background:#0a1322;color:var(--ink);border:1px solid var(--stroke);border-radius:10px;padding:8px 10px}
+.controls button{background:linear-gradient(135deg,var(--primary),var(--accent));border:none;color:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;box-shadow:0 6px 20px rgba(59,130,246,.2);transition:.15s transform}
+.controls button:hover{transform:translateY(-1px)}
+.controls .export-row{display:flex;gap:8px;flex-wrap:wrap}
+#exerciseContainer{padding:18px;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid var(--stroke);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(2,8,23,.35)}
+.card header{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,rgba(59,130,246,.15),rgba(168,85,247,.12));padding:12px 14px;border-bottom:1px solid var(--stroke)}
+.card header h3{margin:0;font-size:16px;display:flex;align-items:center;gap:10px}
+.meta{font-size:12px;color:var(--muted)}
+.exercise-img{width:56px;height:56px;border-radius:12px;object-fit:cover;border:1px solid var(--stroke);background:#081226;box-shadow:0 4px 14px rgba(59,130,246,.15)}
+.table{width:100%;border-collapse:separate;border-spacing:0 6px;padding:10px}
+.table thead th{font-weight:600;font-size:12px;color:#cfe1ff;text-transform:uppercase;letter-spacing:.6px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(34,211,238,.16)); border:1px solid var(--stroke); padding:10px; text-align:center}
+.table tbody tr{transition:.12s transform}
+.table tbody tr:hover{transform:scale(1.01)}
+.table td{background:var(--card);border:1px solid var(--stroke);padding:8px 10px;text-align:center}
+.table thead th:first-child, .table td:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
+.table thead th:last-child, .table td:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
+input[type='number']{width:90px;background:#0a1322;border:1px solid var(--stroke);color:var(--ink);border-radius:10px;padding:8px}
+.add-info{padding:10px 14px;font-size:12px;color:var(--muted)}
+footer{padding:16px;text-align:center;color:var(--muted);border-top:1px solid var(--stroke)}
+.auth-mask{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-box{background:var(--card);border:1px solid var(--stroke);border-radius:16px;max-width:440px;width:100%;padding:22px;box-shadow:0 10px 40px rgba(2,8,23,.55)}
+.auth-box h2{margin:0 0 8px 0}
+.auth-box p{color:var(--muted);font-size:14px;margin:0 0 14px 0}
+.auth-box input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke);background:#0a1322;color:var(--ink)}
+.auth-actions{display:flex;gap:10px;margin-top:12px}
+.auth-actions button{flex:1;padding:12px;border-radius:12px;border:0;cursor:pointer; box-shadow:0 6px 16px rgba(59,130,246,.18)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-2));color:#fff}
+</style></head><body><div class='topbar'><div class='badge'>Usuario: <span id='userBadge'>—</span></div><div style='display:flex; gap:8px;'><button id='switchBtn' class='btn-secondary'>Cambiar usuario</button><button id='logoutBtn' class='btn-secondary'>Salir</button></div></div><header><h1>Seguimiento Rutina 12 Semanas</h1><p>Empuje · Tirón · Pierna — App PWA instalable • Offline (CSV) • XLSX/PDF por CDN</p></header><section class='controls'><label>Semana: <select id='weekSelect'></select></label><label>Fase: <select id='phaseSelect'></select></label><label>Día: <select id='daySelect'></select></label><label>Fecha: <input type='date' id='dateInput'></label><div class='export-row'><button id='saveBtn'>Guardar</button><button id='exportBtn'>Exportar JSON</button><button id='exportCsvBtn'>Exportar CSV</button><button id='exportXlsxBtn'>Exportar XLSX</button><button id='exportPdfBtn'>Exportar PDF</button><input type='file' id='importFile' accept='.json'><button id='newSetBtn' title='Añadir ejercicio manual'>+ Ejercicio</button></div></section><section id='exerciseContainer'></section><footer><small>Modo offline activo tras la primera carga. Para XLSX/PDF se cargan librerías desde CDN.</small></footer>
+<div id='authMask' class='auth-mask' style='display:none'>
+  <div class='auth-box'>
+    <h2 id='authTitle'>Acceso</h2>
+    <p id='authDesc'>Crea tu usuario o inicia sesión para guardar el progreso.</p>
+    <label>Usuario</label>
+    <input id='authUser' placeholder='Tu usuario'>
+    <label>Contraseña</label>
+    <input id='authPass' type='password' placeholder='••••••••'>
+    <div class='auth-actions'>
+      <button id='loginBtn' class='btn-primary'>Entrar</button>
+      <button id='registerBtn' class='btn-secondary'>Registrarme</button>
+    </div>
+    <p style='margin-top:10px;font-size:12px;opacity:.7'>*Login local (sin servidor). Contraseña guardada como hash SHA‑256 en este navegador.</p>
+  </div>
+</div>
+<script>const __PLAN__ = {"phases": [{"name": "Fase 1 (Semanas 1-4)", "weeks": [1, 2, 3, 4], "days": [{"name": "Día 1 • Pecho + Tríceps", "exercises": [{"n": "Press banca barra", "sets": 4, "reps": "8-10", "img": "img/press_banca_barra.png"}, {"n": "Press inclinado mancuernas", "sets": 4, "reps": "8-10", "img": "img/press_inclinado_mancuernas.png"}, {"n": "Aperturas banco plano", "sets": 4, "reps": "10-12", "img": "img/aperturas_banco_plano.png"}, {"n": "Fondos paralelas/banco", "sets": 4, "reps": "8-10", "img": "img/fondos_paralelas_banco.png"}, {"n": "Press francés barra Z", "sets": 4, "reps": "8-10", "img": "img/press_frances_barra_z.png"}, {"n": "Jalón polea cuerda", "sets": 4, "reps": "10-12", "img": "img/jalon_polea_cuerda.png"}, {"n": "Extensión mancuernas cabeza", "sets": 3, "reps": "10-12", "img": "img/extension_mancuernas_cabeza.png"}]}, {"name": "Día 2 • Espalda + Bíceps", "exercises": [{"n": "Dominadas pronas", "sets": 4, "reps": "8-10", "img": "img/dominadas_pronas.png"}, {"n": "Remo barra", "sets": 4, "reps": "8-10", "img": "img/remo_barra.png"}, {"n": "Jalón al pecho polea", "sets": 4, "reps": "8-10", "img": "img/jalon_al_pecho_polea.png"}, {"n": "Peso muerto convencional", "sets": 4, "reps": "8-10", "img": "img/peso_muerto_convencional.png"}, {"n": "Curl barra Z", "sets": 4, "reps": "8-10", "img": "img/curl_barra_z.png"}, {"n": "Curl alterno mancuernas", "sets": 4, "reps": "8-10", "img": "img/curl_alterno_mancuernas.png"}, {"n": "Curl concentrado", "sets": 3, "reps": "10-12", "img": "img/curl_concentrado.png"}]}, {"name": "Día 3 • Piernas + Hombros", "exercises": [{"n": "Sentadillas barra", "sets": 4, "reps": "8-10", "img": "img/sentadillas_barra.png"}, {"n": "Prensa piernas", "sets": 4, "reps": "8-10", "img": "img/prensa_piernas.png"}, {"n": "Zancadas", "sets": 4, "reps": "10-12", "img": "img/zancadas.png"}, {"n": "Curl femoral tumbado", "sets": 4, "reps": "10-12", "img": "img/curl_femoral_tumbado.png"}, {"n": "Press militar barra", "sets": 4, "reps": "8-10", "img": "img/press_militar_barra.png"}, {"n": "Elevaciones laterales", "sets": 4, "reps": "10-12", "img": "img/elevaciones_laterales.png"}, {"n": "Pájaros (posterior)", "sets": 3, "reps": "10-12", "img": "img/pajaros_posterior.png"}]}]}, {"name": "Fase 2 (Semanas 5-8)", "weeks": [5, 6, 7, 8], "days": [{"name": "Día 1 • Pecho + Tríceps", "exercises": [{"n": "Press banca barra (progresivo)", "sets": 5, "reps": "6-8", "img": "img/press_banca_barra_progresivo.png"}, {"n": "Press inclinado (barra/mancuernas)", "sets": 4, "reps": "6-8", "img": "img/press_inclinado_barra_mancuernas.png"}, {"n": "Press mancuernas martillo", "sets": 4, "reps": "8-10", "img": "img/press_mancuernas_martillo.png"}, {"n": "Fondos lastrados", "sets": 4, "reps": "6-8", "img": "img/fondos_lastrados.png"}, {"n": "Press francés", "sets": 5, "reps": "6-8", "img": "img/press_frances.png"}, {"n": "Extensión vertical mancuernas", "sets": 4, "reps": "6-8", "img": "img/extension_vertical_mancuernas.png"}, {"n": "Jalón cuerda", "sets": 4, "reps": "8-10", "img": "img/jalon_cuerda.png"}]}, {"name": "Día 2 • Espalda + Bíceps", "exercises": [{"n": "Dominadas lastradas", "sets": 5, "reps": "6-8", "img": "img/dominadas_lastradas.png"}, {"n": "Remo barra/T-bar", "sets": 4, "reps": "6-8", "img": "img/remo_barra_t_bar.png"}, {"n": "Remo polea baja", "sets": 4, "reps": "8-10", "img": "img/remo_polea_baja.png"}, {"n": "Peso muerto rumano", "sets": 4, "reps": "6-8", "img": "img/peso_muerto_rumano.png"}, {"n": "Curl barra", "sets": 5, "reps": "6-8", "img": "img/curl_barra.png"}, {"n": "Curl alterno supinado", "sets": 4, "reps": "6-8", "img": "img/curl_alterno_supinado.png"}, {"n": "Curl martillo", "sets": 4, "reps": "8-10", "img": "img/curl_martillo.png"}]}, {"name": "Día 3 • Piernas + Hombros", "exercises": [{"n": "Sentadilla frontal/trasera", "sets": 5, "reps": "6-8", "img": "img/sentadilla_frontal_trasera.png"}, {"n": "Prensa piernas", "sets": 4, "reps": "6-8", "img": "img/prensa_piernas.png"}, {"n": "Peso muerto piernas rígidas", "sets": 4, "reps": "8-10", "img": "img/peso_muerto_piernas_rigidas.png"}, {"n": "Curl femoral/extensiones", "sets": 4, "reps": "8-10", "img": "img/curl_femoral_extensiones.png"}, {"n": "Press militar (barra/manc.)", "sets": 5, "reps": "6-8", "img": "img/press_militar_barra_manc.png"}, {"n": "Elevaciones laterales (pausa)", "sets": 4, "reps": "8-10", "img": "img/elevaciones_laterales_pausa.png"}, {"n": "Elevaciones posteriores", "sets": 4, "reps": "8-10", "img": "img/elevaciones_posteriores.png"}]}]}, {"name": "Fase 3 (Semanas 9-12)", "weeks": [9, 10, 11, 12], "days": [{"name": "Día 1 • Pecho + Tríceps", "exercises": [{"n": "Press banca con pausa", "sets": 4, "reps": "10-12", "img": "img/press_banca_con_pausa.png"}, {"n": "Press inclinado mancuernas", "sets": 4, "reps": "10-12", "img": "img/press_inclinado_mancuernas.png"}, {"n": "Aperturas cables", "sets": 4, "reps": "12-15", "img": "img/aperturas_cables.png"}, {"n": "Fondos en banco", "sets": 4, "reps": "10-12", "img": "img/fondos_en_banco.png"}, {"n": "Press francés", "sets": 4, "reps": "10-12", "img": "img/press_frances.png"}, {"n": "Extensión mancuernas sentado", "sets": 4, "reps": "12-15", "img": "img/extension_mancuernas_sentado.png"}, {"n": "Jalón cuerda", "sets": 4, "reps": "12-15", "img": "img/jalon_cuerda.png"}]}, {"name": "Día 2 • Espalda + Bíceps", "exercises": [{"n": "Dominadas mixtas", "sets": 4, "reps": "8-10", "img": "img/dominadas_mixtas.png"}, {"n": "Remo barra/T-bar", "sets": 4, "reps": "10-12", "img": "img/remo_barra_t_bar.png"}, {"n": "Jalón agarre estrecho", "sets": 4, "reps": "12-15", "img": "img/jalon_agarre_estrecho.png"}, {"n": "Peso muerto rumano", "sets": 4, "reps": "10-12", "img": "img/peso_muerto_rumano.png"}, {"n": "Curl barra 21s", "sets": 4, "reps": "21", "img": "img/curl_barra_21s.png"}, {"n": "Curl martillo", "sets": 4, "reps": "12-15", "img": "img/curl_martillo.png"}, {"n": "Curl concentrado", "sets": 4, "reps": "12-15", "img": "img/curl_concentrado.png"}]}, {"name": "Día 3 • Piernas + Hombros", "exercises": [{"n": "Sentadilla con pausa", "sets": 4, "reps": "10-12", "img": "img/sentadilla_con_pausa.png"}, {"n": "Zancadas caminando", "sets": 4, "reps": "12-15", "img": "img/zancadas_caminando.png"}, {"n": "Prensa pies altos", "sets": 4, "reps": "10-12", "img": "img/prensa_pies_altos.png"}, {"n": "Elevación talones (gemelos)", "sets": 4, "reps": "15-20", "img": "img/elevacion_talones_gemelos.png"}, {"n": "Press militar ligero + rest-pause", "sets": 4, "reps": "10-12", "img": "img/press_militar_ligero_rest_pause.png"}, {"n": "Elevaciones laterales altas reps", "sets": 4, "reps": "15-20", "img": "img/elevaciones_laterales_altas_reps.png"}, {"n": "Elevaciones posteriores cable", "sets": 4, "reps": "12-15", "img": "img/elevaciones_posteriores_cable.png"}]}]}]};</script><script src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'></script><script src='https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'></script><script src='https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.1/dist/jspdf.plugin.autotable.min.js'></script><script>
+// --- AUTH (local) ---
+const UKEY = 'rutina12s.users';
+const CKEY = 'rutina12s.currentUser';
+const authMask = document.getElementById('authMask');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const authUser = document.getElementById('authUser');
+const authPass = document.getElementById('authPass');
+const userBadge = document.getElementById('userBadge');
+const logoutBtn = document.getElementById('logoutBtn');
+const switchBtn = document.getElementById('switchBtn');
+function showAuth(){ authMask.style.display='flex'; }
+function hideAuth(){ authMask.style.display='none'; }
+async function sha256(text){ const enc = new TextEncoder().encode(text); const hashBuffer = await crypto.subtle.digest('SHA-256', enc); const hashArray = Array.from(new Uint8Array(hashBuffer)); return hashArray.map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function currentUser(){ return localStorage.getItem(CKEY) || null; }
+function setCurrentUser(u){ localStorage.setItem(CKEY, u); userBadge.textContent = u || '—'; }
+async function doLogin(){ const u = authUser.value.trim(); const p = authPass.value; if(!u||!p) return alert('Usuario y contraseña requeridos'); const all = JSON.parse(localStorage.getItem(UKEY)||'{}'); const urec = all[u]; if(!urec) return alert('Usuario no existe. Regístrate primero.'); const h = await sha256(p); if(h !== urec.hash) return alert('Contraseña incorrecta'); setCurrentUser(u); hideAuth(); render(); }
+async function doRegister(){ const u = authUser.value.trim(); const p = authPass.value; if(!u||!p) return alert('Usuario y contraseña requeridos'); const all = JSON.parse(localStorage.getItem(UKEY)||'{}'); if(all[u]) return alert('Ese usuario ya existe. Inicia sesión.'); const h = await sha256(p); all[u] = { hash: h, created: new Date().toISOString() }; localStorage.setItem(UKEY, JSON.stringify(all)); setCurrentUser(u); hideAuth(); render(); }
+function logout(){ localStorage.removeItem(CKEY); location.reload(); }
+function switchUser(){ showAuth(); }
+loginBtn.addEventListener('click', doLogin);
+registerBtn.addEventListener('click', doRegister);
+logoutBtn.addEventListener('click', logout);
+switchBtn.addEventListener('click', switchUser);
+
+// --- APP ---
+const PLAN = __PLAN__;
+const container = document.getElementById('exerciseContainer');
+const weekSel = document.getElementById('weekSelect');
+const phaseSel = document.getElementById('phaseSelect');
+const daySel = document.getElementById('daySelect');
+const dateInput = document.getElementById('dateInput');
+const saveBtn = document.getElementById('saveBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importFile = document.getElementById('importFile');
+const newSetBtn = document.getElementById('newSetBtn');
+const exportCsvBtn = document.getElementById('exportCsvBtn');
+const exportXlsxBtn = document.getElementById('exportXlsxBtn');
+const exportPdfBtn = document.getElementById('exportPdfBtn');
+
+function weeksForPhase(phaseIdx){ return PLAN.phases[phaseIdx].weeks; }
+
+(function init(){
+  const cu = currentUser();
+  if(!cu){ showAuth(); } else { setCurrentUser(cu); }
+  for(let w=1; w<=12; w++){
+    const opt=document.createElement('option');
+    opt.value=w; opt.textContent='Semana '+w;
+    weekSel.appendChild(opt);
+  }
+  PLAN.phases.forEach((p,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i; opt.textContent=p.name;
+    phaseSel.appendChild(opt);
+  });
+  updateDays();
+  const today = new Date().toISOString().slice(0,10);
+  dateInput.value = today;
+  weekSel.value = 1;
+  render();
+})();
+
+phaseSel.addEventListener('change', ()=>{ syncWeekToPhase(); updateDays(); render(); });
+weekSel.addEventListener('change', ()=>{ syncPhaseToWeek(); render(); });
+daySel.addEventListener('change', render);
+newSetBtn.addEventListener('click', addCustomExercise);
+saveBtn.addEventListener('click', saveData);
+exportBtn.addEventListener('click', exportJSON);
+importFile.addEventListener('change', importJSON);
+exportCsvBtn.addEventListener('click', exportCSV);
+exportXlsxBtn.addEventListener('click', exportXLSX);
+exportPdfBtn.addEventListener('click', exportPDF);
+
+function updateDays(){
+  daySel.innerHTML='';
+  PLAN.phases[phaseSel.value].days.forEach((d,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i; opt.textContent=d.name;
+    daySel.appendChild(opt);
+  });
+}
+function syncWeekToPhase(){
+  const wlist = weeksForPhase(parseInt(phaseSel.value));
+  if(!wlist.includes(parseInt(weekSel.value))){
+    weekSel.value = wlist[0];
+  }
+}
+function syncPhaseToWeek(){
+  const w = parseInt(weekSel.value);
+  const pIndex = PLAN.phases.findIndex(p=>p.weeks.includes(w));
+  if(pIndex>=0){ phaseSel.value = pIndex; updateDays(); }
+}
+function nsKey(base){
+  const u = currentUser();
+  return `usr:${u}:${base}`;
+}
+function makeKey(){ return nsKey(`wk${weekSel.value}_ph${phaseSel.value}_day${daySel.value}`); }
+
+function render(){
+  container.innerHTML='';
+  const p = PLAN.phases[phaseSel.value];
+  const d = p.days[daySel.value];
+  d.exercises.forEach(ex=>container.appendChild(cardForExercise(ex)));
+  const saved = JSON.parse(localStorage.getItem(makeKey())||'{}');
+  if(saved && saved.exercises){
+    saved.exercises.forEach((s, idx)=>{
+      const card = container.children[idx];
+      if(!card) return;
+      s.sets.forEach((st, i)=>{
+        const w = card.querySelector(`input[name='w_${i}']`);
+        const r = card.querySelector(`input[name='r_${i}']`);
+        if(w) w.value = (st.w ?? '') === null ? '' : st.w;
+        if(r) r.value = (st.r ?? '') === null ? '' : st.r;
+      });
+    });
+  }
+}
+
+function cardForExercise(ex){
+  const card = document.createElement('div');
+  card.className='card';
+  const header = document.createElement('header');
+  const h3 = document.createElement('h3');
+  const img = document.createElement('img');
+  img.src = ex.img || '';
+  img.alt = ex.n;
+  img.className = 'exercise-img';
+  h3.appendChild(img);
+  const title = document.createElement('span');
+  title.textContent = ex.n;
+  h3.appendChild(title);
+
+  const meta = document.createElement('div');
+  meta.className='meta';
+  meta.textContent = `${ex.sets} series · objetivo ${ex.reps} reps`;
+  header.appendChild(h3); header.appendChild(meta);
+  card.appendChild(header);
+
+  const table = document.createElement('table');
+  table.className='table';
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Serie</th><th>Peso (kg)</th><th>Reps</th></tr>';
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  const totalSets = ex.sets || 4;
+  for(let i=0;i<totalSets;i++){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${i+1}</td>
+      <td><input type="number" step="0.5" min="0" name="w_${i}" placeholder="kg"></td>
+      <td><input type="number" step="1" min="0" name="r_${i}" placeholder="reps"></td>`;
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  card.appendChild(table);
+  const hint = document.createElement('div');
+  hint.className='add-info';
+  hint.textContent = 'Consejo: prioriza la técnica. Si completas el rango alto de reps, sube 2–2,5 kg la próxima sesión.';
+  card.appendChild(hint);
+  return card;
+}
+
+function collect(){
+  const exercises = [];
+  const cards = document.querySelectorAll('#exerciseContainer .card');
+  cards.forEach(card=>{
+    const name = card.querySelector('h3 span').textContent;
+    const inputsW = card.querySelectorAll('input[name^="w_"]');
+    const inputsR = card.querySelectorAll('input[name^="r_"]');
+    const sets = [];
+    for(let i=0;i<inputsW.length;i++){
+      sets.push({ w: parseFloat(inputsW[i].value)||null, r: parseInt(inputsR[i].value)||null });
+    }
+    exercises.push({ name, sets });
+  });
+  return {
+    user: currentUser(),
+    date: document.getElementById('dateInput').value,
+    week: parseInt(weekSel.value),
+    phaseIndex: parseInt(phaseSel.value),
+    dayIndex: parseInt(daySel.value),
+    exercises
+  };
+}
+
+function saveData(){
+  const data = collect();
+  localStorage.setItem(makeKey(), JSON.stringify(data));
+  alert('Sesión guardada para '+ currentUser() +' ✅');
+}
+
+function exportJSON(){
+  const u = currentUser(); const dump = {};
+  for(let i=1;i<=12;i++){
+    PLAN.phases.forEach((p,pi)=>{
+      p.days.forEach((d,di)=>{
+        const key = nsKey(`wk${i}_ph${pi}_day${di}`);
+        const val = localStorage.getItem(key);
+        if(val) dump[key] = JSON.parse(val);
+      });
+    });
+  }
+  const blob = new Blob([JSON.stringify(dump, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `seguimiento_${u||'usuario'}_rutina_12s.json`;
+  a.click();
+}
+
+function flattenAll(){
+  const rows = [];
+  const u = currentUser();
+  for(let wk=1; wk<=12; wk++){
+    PLAN.phases.forEach((p,pi)=>{
+      p.days.forEach((d,di)=>{
+        const key = nsKey(`wk${wk}_ph${pi}_day${di}`);
+        const val = localStorage.getItem(key);
+        if(!val) return;
+        let obj; try{ obj = JSON.parse(val); } catch(e){ return; }
+        const date = obj.date || '';
+        (obj.exercises||[]).forEach(ex => {
+          (ex.sets||[]).forEach((st, idx)=>{
+            rows.push({
+              user: u, date, week: wk, phase: p.name, day: d.name,
+              exercise: ex.name, set: idx+1, kg: st.w ?? '', reps: st.r ?? ''
+            });
+          });
+        });
+      });
+    });
+  }
+  return rows;
+}
+
+function exportCSV(){
+  const rows = flattenAll();
+  const header = ['Usuario','Fecha','Semana','Fase','Día','Ejercicio','Serie','Kg','Reps'];
+  const lines = [header.join(',')].concat(rows.map(r=>[r.user,r.date,r.week,r.phase,r.day,r.exercise,r.set,r.kg,r.reps].map(v=>{
+    if(v===null||v===undefined) return '';
+    const s = String(v).replace(/\"/g,'\"\"');
+    return /[\",\\n]/.test(s) ? '\"'+s+'\"' : s;
+  }).join(',')));
+  const blob = new Blob([lines.join('\\n')], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `seguimiento_${currentUser()||'usuario'}_12s.csv`;
+  a.click();
+}
+
+function exportXLSX(){
+  if(typeof XLSX === 'undefined'){ alert('Cargando librería XLSX... vuelve a intentarlo en 1-2 segundos.'); return; }
+  const rows = flattenAll();
+  const ws_data = [['Usuario','Fecha','Semana','Fase','Día','Ejercicio','Serie','Kg','Reps']];
+  rows.forEach(r=>ws_data.push([r.user,r.date,r.week,r.phase,r.day,r.exercise,r.set,r.kg,r.reps]));
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Progreso');
+  XLSX.writeFile(wb, `seguimiento_${currentUser()||'usuario'}_12s.xlsx`);
+}
+
+function exportPDF(){
+  if(typeof jspdf === 'undefined' || typeof jspdf.jsPDF === 'undefined' || !('autoTable' in window)){
+    alert('Cargando librerías PDF... vuelve a intentarlo en 1-2 segundos.');
+    return;
+  }
+  const rows = flattenAll();
+  const doc = new jspdf.jsPDF({orientation:'landscape'});
+  doc.setFontSize(14);
+  doc.text('Seguimiento Rutina 12 Semanas', 14, 16);
+  const head = [['Usuario','Fecha','Semana','Fase','Día','Ejercicio','Serie','Kg','Reps']];
+  const body = rows.map(r=>[r.user,r.date,r.week,r.phase,r.day,r.exercise,r.set,r.kg,r.reps]);
+  doc.autoTable({
+    head, body,
+    startY: 22,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [59,130,246] }
+  });
+  doc.save(`seguimiento_${currentUser()||'usuario'}_12s.pdf`);
+}
+
+function importJSON(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const obj = JSON.parse(reader.result);
+      Object.keys(obj).forEach(k=>localStorage.setItem(k, JSON.stringify(obj[k])));
+      alert('Datos importados ✅');
+      render();
+    }catch(err){
+      alert('Archivo inválido');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function addCustomExercise(){
+  const name = prompt('Nombre del ejercicio:');
+  if(!name) return;
+  const sets = parseInt(prompt('¿Cuántas series? (número)', '4'))||4;
+  const ex = { n: name, sets: sets, reps: '-', img: 'img/custom.png' };
+  container.appendChild(cardForExercise(ex));
+}
+</script><script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js'); }</script></body></html>
